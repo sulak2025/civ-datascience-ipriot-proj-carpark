@@ -26,11 +26,18 @@ class MyCarparkManager(CarparkSensorListener, CarparkDataProvider):
     def current_time(self):
         return datetime.now().strftime("%H:%M:%S")
 
+    def _log_event(self, event_type, license_plate):
+        with open('carpark_log_SL.txt', 'a') as log_file:
+            log_file.write(f"{datetime.now()} - {event_type}: {license_plate}\n")
+
+     
+
     # ----------------------------
     # CarparkSensorListener methods
     # ----------------------------
     def incoming_car(self, license_plate: str):
         print(f"[INCOMING] Car with plate {license_plate}")
+        self._log_event("INCOMING", license_plate)
         if self._available_spaces > 0 and license_plate not in self._cars_in_lot:
             self._cars_in_lot.add(license_plate)
             if hasattr(self, '_update_display') and self._update_display:
@@ -40,6 +47,7 @@ class MyCarparkManager(CarparkSensorListener, CarparkDataProvider):
 
     def outgoing_car(self, license_plate: str):
         print(f"[OUTGOING] Car with plate {license_plate}")
+        self._log_event("OUTGOING", license_plate)
         if license_plate in self._cars_in_lot:
             self._cars_in_lot.remove(license_plate)
             if hasattr(self, '_update_display') and self._update_display:
